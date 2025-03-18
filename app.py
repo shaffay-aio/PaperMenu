@@ -7,8 +7,9 @@
 import uvicorn
 from io import BytesIO
 from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-#from backend.main import vlm
+from backend.main import vlm
     
 import warnings 
 warnings.filterwarnings("ignore")
@@ -30,8 +31,9 @@ async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
     file_data = await file.read()
     file_stream = BytesIO(file_data)
 
-    #vlm()
-    return {"excel_file_size": len(file_data)} 
+    output = vlm(image_stream, file_stream)
+    filename = "file.xlsx"
+    return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8042)
