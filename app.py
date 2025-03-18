@@ -19,7 +19,6 @@ app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
 
-# TODO: make it multi jpg uploader
 @app.post("/supermenu")
 async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
 
