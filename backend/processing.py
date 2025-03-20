@@ -42,5 +42,5 @@ def convert_to_dataframe(parsed_json):
         else:
             menu_list.append([category, items, "", items])
 
-    df = pd.DataFrame(menu_list, columns=["Category", "Item", "Price", "Description"])
+    df = pd.DataFrame(menu_list, columns=["Category Name", "Item Name", "Item Price", "Item Description"])
     return df

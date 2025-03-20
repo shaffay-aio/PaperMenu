@@ -26,11 +26,10 @@ def prompt_template(image_url):
 
 def model(prompt):
     
-  client = OpenAI(api_key=os.getenv("QWEN_API_KEY"), 
-                  base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
+    client = OpenAI(api_key=os.getenv("QWEN_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
 
-  response = client.chat.completions.create(
+    response = client.chat.completions.create(
     model = "qwen-vl-max", response_format = {'type':'json_object'}, messages=prompt
     )
-  
-  return response.choices[0].message.content
+
+    return response.choices[0].message.content
