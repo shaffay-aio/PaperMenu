@@ -2,6 +2,7 @@ from backend.embeddings import merge
 from backend.model import prompt_template, model
 from backend.processing import encode_image, json_validator, convert_to_dataframe
 
+import io
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -26,10 +27,22 @@ def vlm(image_stream):
 
 def pipeline(image_stream, file_stream):
     
-    #dataframe = vlm(image_stream)
-    print("menu extracted")
+    # extract menu
+    dataframe = vlm(image_stream)
 
+    # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
-    merged    = merge(file['items'], file['items'])
-    print("files marged")
-    pass
+    file['items'] = merge(dataframe, file['items'])
+    
+    # convert to aio format
+
+    # apply super menu
+
+    # convert excel file to byte stream object
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        for key in file.keys():
+            file[key].to_excel(writer, sheet_name=key, index=False)            
+    output.seek(0)
+
+    return output
