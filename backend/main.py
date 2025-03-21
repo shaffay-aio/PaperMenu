@@ -1,12 +1,15 @@
+import io
+import pandas as pd
+
 from backend.embeddings import merge
 from backend.model import prompt_template, model
 from backend.processing import encode_image, json_validator, convert_to_dataframe
 
-import io
-import pandas as pd
 from dotenv import load_dotenv
-
 load_dotenv()
+
+from backend.utils.logging import setup_logger
+logger = setup_logger(__name__)
 
 def vlm(image_stream):
 
@@ -29,14 +32,18 @@ def pipeline(image_stream, file_stream):
     
     # extract menu
     dataframe = vlm(image_stream)
+    logger.info(f"Image processed successfully. {dataframe['Category Name'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
 
     # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
-    file['items'] = merge(dataframe, file['items'])
-    
+    file['items'], missing_items = merge(dataframe, file['items'])
+    logger.info(f"Scraped and OCR files merged successfully. {missing_items['Item Name'].nunique()} additional items added.")
+
     # convert to aio format
+    #logger.info("File converted to AIO format.")
 
     # apply super menu
+    #logger.info("Super Menu modifier/option filling added.")
 
     # convert excel file to byte stream object
     output = io.BytesIO()
