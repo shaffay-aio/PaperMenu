@@ -69,4 +69,5 @@ def merge(df1, df2):
         raise TypeError("Both inputs to merge() must be pandas DataFrames")
 
     # Run similarity-based merging
-    return find_similar_items(df1, df2)
+    df, missing_items = find_similar_items(df1, df2)
+    return df, missing_items

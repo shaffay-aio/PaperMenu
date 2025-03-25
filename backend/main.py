@@ -48,8 +48,8 @@ def pipeline(image_stream, file_stream):
     # convert excel file to byte stream object
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        for key in dataframe.keys():
-            dataframe[key].to_excel(writer, sheet_name=key, index=False)            
+        for key in file.keys():
+            file[key].to_excel(writer, sheet_name=key, index=False)            
     output.seek(0)
 
     return output
