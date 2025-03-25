@@ -1,16 +1,15 @@
-
-# fastapi endpoint
-# - accepts multiple images (jpg), and an excel file
-# calls main process
-# returns final csv
-
+import io
 import uvicorn
+import pandas as pd
 from io import BytesIO
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from backend.main import pipeline
-    
+from backend.main import pipeline, vlm
+
+from backend.utils.logging import setup_logger
+logger = setup_logger(__name__)
+
 import warnings 
 warnings.filterwarnings("ignore")
 
@@ -19,7 +18,26 @@ app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
 
-@app.post("/supermenu")
+@app.post("/ocr")
+async def ocr_only(image: UploadFile = File(...)):
+
+    # Read and process the image
+    image_bytes = await image.read()
+    image_stream = BytesIO(image_bytes)
+
+    response = vlm(image_stream)
+
+    # convert excel file to byte stream object
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        for key in response.keys():
+            response[key].to_excel(writer, sheet_name=key, index=False)            
+    output.seek(0)
+
+    filename = "file.xlsx"
+    return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
+
+@app.post("/ocr-menu-pipeline")
 async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
 
     # Read and process the image
