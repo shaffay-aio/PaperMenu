@@ -2,8 +2,8 @@ import io
 import pandas as pd
 
 from backend.embeddings import merge
-from backend.model import prompt_template, model
-from backend.processing import encode_image, json_validator, convert_to_dataframe
+from backend.model import prompt_template, modelGemini, modelQwen
+from backend.processing import encode_image, list_validator, convert_to_dataframe
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -15,16 +15,17 @@ def vlm(image_stream):
 
     # process image
     encoded   = encode_image(image_stream)
-    image_url = f"data:image/jpeg;base64, {encoded}"
-    
+    image_url = f"data:image/jpeg;base64,{encoded}"
+       
     # build prompt and perform inference
     prompt    = prompt_template(image_url)
-    response  = model(prompt)
+    response  = modelGemini(prompt)
 
     # process output
-    parsed    = json_validator(response)
+    parsed    = list_validator(response)
     dataframe = convert_to_dataframe(parsed)
 
+    logger.info(f"Image processed successful. {dataframe['Category Name'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
     return dataframe
             
 
@@ -32,7 +33,6 @@ def pipeline(image_stream, file_stream):
     
     # extract menu
     dataframe = vlm(image_stream)
-    logger.info(f"Image processed successfully. {dataframe['Category Name'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
 
     # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
@@ -48,8 +48,8 @@ def pipeline(image_stream, file_stream):
     # convert excel file to byte stream object
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        for key in file.keys():
-            file[key].to_excel(writer, sheet_name=key, index=False)            
+        for key in dataframe.keys():
+            dataframe[key].to_excel(writer, sheet_name=key, index=False)            
     output.seek(0)
 
     return output
