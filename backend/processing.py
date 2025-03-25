@@ -36,8 +36,14 @@ def convert_to_dataframe(output):
    
     try:
         df = pd.DataFrame(output)
-        df.columns = ["Category Name", "Item Name", "Item Price", "Item Description"]
+        df.columns = ["Parent Category", "Item Name", "Item Price", "Item Description"]
     except Exception as e:
         raise HTTPException(status_code=403, detail=f"Dataframe creation error. {e}")
 
     return df
+
+def additional_columns(dataframe):
+
+    dataframe['Menu Name'] = ['Main Menu'] * len(dataframe)
+    dataframe['Stock Status'] = ['inStock'] * len(dataframe)
+    return dataframe

@@ -1,7 +1,13 @@
+#### Usage Commands
+```
+pip install -r requirements.txt
+python app.py
+```
+
 #### Models
-- Gemini
-- Qwen
-- Gpt
+1. Gemini 2.0 Flash
+2. Qwen VL Max (VPN required)
+3. Gpt 4o
 
 #### Target Menus
 - Pamphlet Menus – Single-sheet, foldable, or takeaway menus often used for promotions and delivery.
@@ -12,24 +18,28 @@
 - SM   : fills modifiers and options
 - LLM  : refines m/o 
 
-#### Flow
-x-1. enable logging
-x2. add gemini
-3. define pydantic output structure
-4. add aio format
-5. super menu apis
+#### Performance Enhancement
+- Explore image restructuring
+- Any additional information we can extract from menu
 
+#### Performance Eval
+- Are all categories, items being fetched?
+- Are their any spelling errors?
+- Is there any irrelevant information being fetched?
 
-x- Upload single pager menu.
-x- Read it via OCR. (prompt (quality, template), model (qwen, gemini, ), json (llm, extractor))
-x- Output should be json. (Category, Item, Price, Description)
-- Pydantic structure for json validator
-x- It will not have Modifier/Option
-x- Get scraped menu.
-x- Embedding based similarity matching and modifier/option attachement.
-- Convert to AIO format.
-- Super Menu enhancement.
+#### Menu Instructions
+- Rotate images to the correct orientation before uploading.
+- Avoid blurry images.
 
+#### Future Additions
+- ⭕ Convert to AIO format.
+- ⭕ Add Pydantic structure for output.
+- ⭕ Add multi jpgs, pdf to api input.
+- ⭕ Add error handling.
+- ⭕ Quality testing on diverse menus.
+- ⭕ Super Menu enhancement.
+
+#### TODO
 - For multi pager, read all one by one.
 - Use gpt 40 mini to concat jsons.
 - for gemini if there are multiple menu images, to certain number you can send them all at once and get one json 
@@ -39,22 +49,3 @@ x- Embedding based similarity matching and modifier/option attachement.
 - improve prompt by fixing output format, telling what information to extract
 
 lookup : If using a single image, place the text prompt after the image.
-
-#### Performance Enhancement
-- Explore image restructuring
-- Any additional information we can extract from menu
-
-#### Menu Instructions
-- Rotate images to the correct orientation before uploading.
-- Avoid blurry images.
-
-#### Future Additions
-- ⭕ Add multi jpgs, pdf to api input.
-- ⭕ Add error handling.
-- ⭕ Fill default values of newly added items.
-
-#### Usage Commands
-```
-pip install -r requirements.txt
-python app.py
-```

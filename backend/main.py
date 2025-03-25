@@ -3,7 +3,7 @@ import pandas as pd
 
 from backend.embeddings import merge
 from backend.model import prompt_template, modelGemini, modelQwen
-from backend.processing import encode_image, list_validator, convert_to_dataframe
+from backend.processing import encode_image, list_validator, convert_to_dataframe, additional_columns
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -25,7 +25,7 @@ def vlm(image_stream):
     parsed    = list_validator(response)
     dataframe = convert_to_dataframe(parsed)
 
-    logger.info(f"Image processed successful. {dataframe['Category Name'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
+    logger.info(f"Image processed successfully. {dataframe['Category Name'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
     return dataframe
             
 
@@ -37,6 +37,7 @@ def pipeline(image_stream, file_stream):
     # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
     file['items'], missing_items = merge(dataframe, file['items'])
+    file['items'] = additional_columns(file['items'])
     logger.info(f"Scraped and OCR files merged successfully. {missing_items['Item Name'].nunique()} additional items added.")
 
     # convert to aio format
