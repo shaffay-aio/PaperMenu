@@ -51,3 +51,10 @@ lookup : If using a single image, place the text prompt after the image.
 #### Future Additions
 - ⭕ Add multi jpgs, pdf to api input.
 - ⭕ Add error handling.
+- ⭕ Fill default values of newly added items.
+
+#### Usage Commands
+```
+pip install -r requirements.txt
+python app.py
+```
