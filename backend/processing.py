@@ -1,46 +1,41 @@
-import json
+import ast
 import io, base64
 import pandas as pd
 from PIL import Image
+from fastapi import HTTPException
 
 def encode_image(image_path):
     
-    # Open the image file
-    with Image.open(image_path) as img:
+    try:
+        # Open the image file
+        with Image.open(image_path) as img:
 
-        # Resize the image using high-quality downsampling
-        img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
-        
-        # Save the resized image to a byte buffer
-        buffered = io.BytesIO()
-        img.save(buffered, format="JPEG")
-        
-        # Encode the image to base64
-        return base64.b64encode(buffered.getvalue()).decode('utf-8')
+            # Resize the image using high-quality downsampling
+            img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
+            
+            # Save the resized image to a byte buffer
+            buffered = io.BytesIO()
+            img.save(buffered, format="JPEG")
+            
+            # Encode the image to base64
+            return base64.b64encode(buffered.getvalue()).decode('utf-8')
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Image conversion error. {e}")
 
-def json_validator(response):
+def list_validator(response):
 
     try:
-        parsed_json = json.loads(response.replace("```json","").strip("```").strip())
-        print("Json loaded")
-        return parsed_json
-
-    except json.JSONDecodeError as e:
-        print("Failed to decode JSON from the response:")
-        print(response)
-        raise e
+        output = ast.literal_eval(response)
+        return output 
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=f"List conversion error. {e}")
     
-def convert_to_dataframe(parsed_json):
+def convert_to_dataframe(output):
+   
+    try:
+        df = pd.DataFrame(output)
+        df.columns = ["Category Name", "Item Name", "Item Price", "Item Description"]
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=f"Dataframe creation error. {e}")
 
-    menu_list = []
-
-    for category, items in parsed_json.items():
-        if isinstance(items, dict):
-            for item, price in items.items():
-                description = item
-                menu_list.append([category, item, price, description])
-        else:
-            menu_list.append([category, items, "", items])
-
-    df = pd.DataFrame(menu_list, columns=["Category Name", "Item Name", "Item Price", "Item Description"])
     return df
