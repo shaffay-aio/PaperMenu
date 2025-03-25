@@ -13,10 +13,6 @@ Output Format:
 
 def prompt_template(image_url):
 
-    # output format json
-    # necessary fields in output
-    # any additional modifier/option fields
-
     message = [
         {
             "role": "user",
@@ -35,7 +31,8 @@ def modelQwen(prompt):
     client = OpenAI(api_key=os.getenv("QWEN_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
 
     response = client.chat.completions.create(
-    model = "qwen-vl-max", response_format = {'type':'json_object'}, messages=prompt
+    model = "qwen-vl-max", response_format = {'type':'json_object'}, 
+    messages=prompt, temperature=0.0
     )
 
     return response.choices[0].message.content
