@@ -28,6 +28,8 @@ def list_validator(response):
         output = ast.literal_eval(response)
         return output 
     except Exception as e:
+        with open("./output/response.txt", "a") as f:
+            f.write(response)
         raise HTTPException(status_code=403, detail=f"List conversion error. {e}")
     
 def convert_to_dataframe(output):
