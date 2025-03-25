@@ -28,14 +28,12 @@ async def ocr_only(image: UploadFile = File(...)):
     response = vlm(image_stream)
 
     # convert excel file to byte stream object
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        for key in response.keys():
-            response[key].to_excel(writer, sheet_name=key, index=False)            
+    output = io.BytesIO() 
+    response.to_csv(output, index=False)    
     output.seek(0)
 
-    filename = "file.xlsx"
-    return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
+    filename = "file.csv"
+    return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 @app.post("/ocr-menu-pipeline")
 async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
