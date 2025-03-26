@@ -2,6 +2,7 @@ import io
 import uvicorn
 import pandas as pd
 from io import BytesIO
+from fastapi import HTTPException
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,7 +26,14 @@ async def ocr_only(image: UploadFile = File(...)):
     image_bytes = await image.read()
     image_stream = BytesIO(image_bytes)
 
-    response = vlm(image_stream)
+    try:
+        response = vlm(image_stream)
+        
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error. {e}")
 
     # convert excel file to byte stream object
     output = io.BytesIO() 
@@ -46,7 +54,15 @@ async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
     file_data = await file.read()
     file_stream = BytesIO(file_data)
 
-    output = pipeline(image_stream, file_stream)
+    try:
+        output = pipeline(image_stream, file_stream)
+
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error. {e}")
+
     filename = "file.xlsx"
     return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
