@@ -1,5 +1,8 @@
 import os
+from typing import List
 from openai import OpenAI
+from pydantic import BaseModel
+from fastapi import HTTPException
 
 sys_prompt = """You have to extract all the data from the menu in the JSON format.
 Do not write anything from yourself. If any information in below given format is missing keep it empty.
@@ -10,6 +13,15 @@ Output Format:
     {'category' : '', 'item': '', 'price': , 'description': ''}, 
 ]
 """
+
+class ItemSchema(BaseModel):
+    category: str
+    item: str
+    price: float
+    description: str
+
+class ItemsList(BaseModel):
+    __root__: List[ItemSchema]
 
 def prompt_template(image_url):
 
@@ -28,21 +40,27 @@ def prompt_template(image_url):
 
 def modelQwen(prompt):
     
-    client = OpenAI(api_key=os.getenv("QWEN_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
+    try:
+        client = OpenAI(api_key=os.getenv("QWEN_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
 
-    response = client.chat.completions.create(
-    model = "qwen-vl-max", response_format = {'type':'json_object'}, 
-    messages=prompt, temperature=0.0
-    )
-
+        response = client.chat.completions.create(
+        model = "qwen-vl-max", response_format = {'type':'json_object'}, 
+        messages=prompt, temperature=0.0
+        )
+    except Exception as e:
+        raise HTTPException(status_code=e.status_code, detail=f"Model response error. {e}")
+    
     return response.choices[0].message.content
 
 def modelGemini(prompt):
 
-    client = OpenAI(api_key=os.getenv("GEMINI_API_KEY"), base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
+    try:
+        client = OpenAI(api_key=os.getenv("GEMINI_API_KEY"), base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
 
-    response = client.chat.completions.create(
-    model = "gemini-2.0-flash-lite", response_format = {'type':'json_object'}, messages=prompt
-    )
+        response = client.chat.completions.create(
+        model = "gemini-2.0-flash-lite", response_format = {'type':'json_schema'}, messages=prompt
+        )
+    except Exception as e:
+        raise HTTPException(status_code=e.status_code, detail=f"Model response error. {e}")
 
     return response.choices[0].message.content
