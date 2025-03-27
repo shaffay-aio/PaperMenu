@@ -1,27 +1,16 @@
 import os
-from typing import List
 from openai import OpenAI
-from pydantic import BaseModel
 from fastapi import HTTPException
 
 sys_prompt = """You have to extract all the data from the menu in the JSON format.
 Do not write anything from yourself. If any information in below given format is missing keep it empty.
 Do not break the output structure. You have to extract only food categories, items, prices and descriptions.
-
+Where no information for a specific entity is found, it should add "" rather than null.
 Output Format:
 [
     {'category' : '', 'item': '', 'price': , 'description': ''}, 
 ]
 """
-
-class ItemSchema(BaseModel):
-    category: str
-    item: str
-    price: float
-    description: str
-
-class ItemsList(BaseModel):
-    __root__: List[ItemSchema]
 
 def prompt_template(image_url):
 

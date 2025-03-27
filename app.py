@@ -61,7 +61,7 @@ async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Internal server error. {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error. {e}")
 
     filename = "file.xlsx"
     return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})

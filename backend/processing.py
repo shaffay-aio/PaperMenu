@@ -4,6 +4,9 @@ import io, base64
 import pandas as pd
 from PIL import Image
 from fastapi import HTTPException
+from backend.utils.logging import setup_logger
+
+logger = setup_logger(__name__)
 
 def create_bytes_object(file):
 
@@ -73,10 +76,10 @@ def convert_to_aio(file):
 
     # read file
     if response.status_code == 200:
-        #logger.info("AIO format api completed.")        
+        logger.info("AIO format api completed.")        
         df = pd.read_excel(response.content, sheet_name=None)
         output = create_bytes_object(df)
         return output
     else:
-        #logger.info("AIO format api failed.")
+        logger.info("AIO format api failed.")
         raise HTTPException(status_code=response.status_code, detail=response.text)

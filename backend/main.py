@@ -19,17 +19,20 @@ def vlm(image_stream):
     # build prompt and perform inference
     prompt    = prompt_template(image_url)
     response  = modelGemini(prompt)
+    logger.info("Model response recieved.")
 
     # process output
     parsed    = list_validator(response)
     dataframe = convert_to_dataframe(parsed)
 
-    logger.info(f"Image processed successfully. {dataframe['Category Name'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
+    logger.info(f"Image processed successfully. {dataframe['Parent Category'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
     return dataframe
             
 
 def pipeline(image_stream, file_stream):
     
+    logger.info("Files recieved. Processing started.")
+
     # extract menu
     dataframe = vlm(image_stream)
 
