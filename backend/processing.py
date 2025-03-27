@@ -1,8 +1,19 @@
 import ast
+import requests
 import io, base64
 import pandas as pd
 from PIL import Image
 from fastapi import HTTPException
+
+def create_bytes_object(file):
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        for key in file.keys():
+            file[key].to_excel(writer, sheet_name=key, index=False)            
+    output.seek(0)
+
+    return output
 
 def encode_image(image_path):
     
@@ -47,3 +58,25 @@ def additional_columns(dataframe):
     dataframe['Menu Name'] = ['Main Menu'] * len(dataframe)
     dataframe['Stock Status'] = ['inStock'] * len(dataframe)
     return dataframe
+
+def convert_to_aio(file):
+
+    # convert excel file to bytes object
+    byte = create_bytes_object(file)
+
+    # prepare payload
+    url = "http://44.231.228.32:8040/onlinetoaioformatter"
+    files = {"file": ("data.xlsx", byte, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+    # hit endpoint get response
+    response = requests.post(url, files=files)
+
+    # read file
+    if response.status_code == 200:
+        #logger.info("AIO format api completed.")        
+        df = pd.read_excel(response.content, sheet_name=None)
+        output = create_bytes_object(df)
+        return output
+    else:
+        #logger.info("AIO format api failed.")
+        raise HTTPException(status_code=response.status_code, detail=response.text)
