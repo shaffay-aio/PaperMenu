@@ -32,10 +32,8 @@ python app.py
 - Avoid blurry images.
 
 #### Future Additions
-- ⭕ Convert to AIO format.
 - ⭕ Add Pydantic structure for output.
 - ⭕ Add multi jpgs, pdf to api input.
-- ⭕ Add error handling.
 - ⭕ Quality testing on diverse menus.
 - ⭕ Super Menu enhancement.
 
