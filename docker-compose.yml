@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8042:8042"
+    restart: always
+    labels:
+      - "com.aioapp.description=Online to AIO service"
+      - "com.aioapp.vendor=AIOApp Inc."
