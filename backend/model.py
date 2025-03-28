@@ -1,6 +1,7 @@
 import os
 from openai import OpenAI
 from fastapi import HTTPException
+from pydantic import BaseModel
 
 sys_prompt = """You have to extract all the data from the menu in the JSON format.
 Do not write anything from yourself. If any information in below given format is missing keep it empty.
@@ -12,6 +13,15 @@ Output Format:
 ]
 """
 
+class RequiredFields(BaseModel):
+    category: str
+    item: str
+    price: float
+    description: str
+
+class ArrayDict(BaseModel):
+    rows: list[RequiredFields]
+    
 def prompt_template(image_url):
 
     message = [
@@ -47,7 +57,8 @@ def modelGemini(prompt):
         client = OpenAI(api_key=os.getenv("GEMINI_API_KEY"), base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
 
         response = client.chat.completions.create(
-        model = "gemini-2.0-flash-lite", response_format = {'type':'json_schema'}, messages=prompt
+        model = "gemini-2.0-flash-lite", response_format = {'type':'json_schema'}, 
+        messages=prompt, temperature=0.0
         )
     except Exception as e:
         raise HTTPException(status_code=e.status_code, detail=f"Model response error. {e}")
