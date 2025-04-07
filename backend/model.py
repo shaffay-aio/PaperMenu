@@ -3,13 +3,15 @@ from openai import OpenAI
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-sys_prompt = """You have to extract all the data from the menu in the JSON format.
+sys_prompt = """You have to extract all the data from the menu in the provided JSON format.
 Do not write anything from yourself. If any information in below given format is missing keep it empty.
 Do not break the output structure. You have to extract only food categories, items, prices and descriptions.
 Where no information for a specific entity is found, it should add "" rather than null.
+If item with different modifications exist, make separate entries for them.
+
 Output Format:
 [
-    {'category' : '', 'item': '', 'price': , 'description': ''}, 
+    {'category' : <name of food category>, 'item': <name of food item>, 'price': <price of food item>, 'modifier': <name of food modifier>, 'description': <description of food item>}, 
 ]
 """
 

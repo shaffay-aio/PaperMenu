@@ -50,7 +50,7 @@ def convert_to_dataframe(output):
    
     try:
         df = pd.DataFrame(output)
-        df.columns = ["Parent Category", "Item Name", "Item Price", "Item Description"]
+        df.columns = ["Parent Category", "Item Name", "Item Price", "Modifier", "Item Description"]
     except Exception as e:
         raise HTTPException(status_code=403, detail=f"Dataframe creation error. {e}")
 
