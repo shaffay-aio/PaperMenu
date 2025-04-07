@@ -28,6 +28,17 @@ def vlm(image_stream):
     logger.info(f"Image processed successfully. {dataframe['Parent Category'].nunique()} categories & {dataframe['Item Name'].nunique()} items extracted.")
     return dataframe
             
+def multiimage(image_streams):
+
+    dfs = []
+
+    # process and store all image streams
+    for i, image in enumerate(image_streams):
+        dfs.append(vlm(image))
+
+    # merge
+    df = pd.concat(dfs, ignore_index=True)
+    return df
 
 def pipeline(image_stream, file_stream):
     
