@@ -37,6 +37,11 @@ python app.py
 - ⭕ Quality testing on diverse menus.
 - ⭕ Super Menu enhancement.
 
+#### Testing
+- ⭕ Tilted menu tested.
+- ⭕ Single pager straight menu tested.
+- ⭕ Multi pager straight menu tested.
+
 #### TODO
 - For multi pager, read all one by one.
 - Use gpt 40 mini to concat jsons.
