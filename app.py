@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from backend.main import pipeline, vlm, multiimage
+from backend.main import pipeline, multiimage
 
 from backend.utils.logging import setup_logger
 logger = setup_logger(__name__)
@@ -64,18 +64,17 @@ async def ocr_only(images: List[UploadFile] = File(...)):
     return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 @app.post("/ocr-menu-pipeline")
-async def OCR(image: UploadFile = File(...), file: UploadFile = File(...)):
+async def OCR(images: List[UploadFile] = File(...), file: UploadFile = File(...)):
 
     # Read and process the image
-    image_bytes = await image.read()
-    image_stream = BytesIO(image_bytes)
+    image_streams = await read_images(images)
     
     # Read the excel file
     file_data = await file.read()
     file_stream = BytesIO(file_data)
 
     try:
-        output = pipeline(image_stream, file_stream)
+        output = pipeline(image_streams, file_stream)
 
     except HTTPException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)

@@ -45,7 +45,7 @@ def pipeline(image_stream, file_stream):
     logger.info("Files recieved. Processing started.")
 
     # extract menu
-    dataframe = vlm(image_stream)
+    dataframe = multiimage(image_stream)
 
     # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
