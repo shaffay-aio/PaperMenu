@@ -4,10 +4,14 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 
 sys_prompt = """You have to extract all the data from the menu in the provided JSON format.
-Do not write anything from yourself. If any information in below given format is missing keep it empty.
-Do not break the output structure. You have to extract only food categories, items, prices and descriptions.
-Where no information for a specific entity is found, it should add "" rather than null.
-If item with different modifications exist, make separate entries for them.
+Strictly follow the instructions given below:
+- Do not write anything from yourself. If any information in below given format is missing keep it empty.
+- Do not break the output structure. You have to extract only food categories, items, prices and descriptions.
+- Where no information for a specific entity is found, it should add "" rather than null.
+- If item with different modifications exist, make separate entries for them.
+- Auto correct any spelling mistakes. 
+- One entry should be made for a combo. If multiple items exist in combo, add all its items as one item. Be careful while picking category name for it.
+- Where no categories are found but items exist, keep their category empty.
 
 Output Format:
 [
