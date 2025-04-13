@@ -67,6 +67,7 @@ def modelGemini(prompt):
         messages=prompt, temperature=0.0
         )
     except Exception as e:
+        # TODO: this e.status_code is wrong and causing further error in case of api failure
         raise HTTPException(status_code=e.status_code, detail=f"Model response error. {e}")
 
     return response.choices[0].message.content
