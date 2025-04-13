@@ -63,6 +63,7 @@ async def ocr_only(images: List[UploadFile] = File(...)):
     filename = "file.csv"
     return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
+# TODO: additional column Modifier should be such that i can be reflected back to middleware
 @app.post("/ocr-menu-pipeline")
 async def OCR(images: List[UploadFile] = File(...), file: UploadFile = File(...)):
 
