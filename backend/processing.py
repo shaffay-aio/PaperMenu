@@ -1,3 +1,4 @@
+import re
 import ast
 import requests
 import io, base64
@@ -50,7 +51,13 @@ def convert_to_dataframe(output):
    
     try:
         df = pd.DataFrame(output)
+
+        # preprocess columns
         df.columns = ["Parent Category", "Item Name", "Item Price", "Modifier", "Item Description"]
+
+        df[['Parent Category', 'Item Name']] = df[['Parent Category', 'Item Name', "Modifier"]].apply(lambda col: col.apply(lambda val: val.title() if pd.notna(val) else val))
+        df['Item Price'] = df['Item Price'].apply(lambda x: float(re.sub(r'[^\d.-]', '', str(x))) if pd.notna(x) else x)
+
     except Exception as e:
         raise HTTPException(status_code=403, detail=f"Dataframe creation error. {e}")
 
