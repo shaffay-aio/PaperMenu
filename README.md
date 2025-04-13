@@ -28,7 +28,8 @@ python app.py
 - Is there any irrelevant information being fetched?
 
 #### Menu Instructions
-- Rotate images to the correct orientation before uploading.
+- Remove background
+- Rotate images to the correct orientation before uploading. (menu should be straight)
 - Avoid blurry images.
 
 #### Future Additions
