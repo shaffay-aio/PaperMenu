@@ -53,7 +53,7 @@ def modelQwen(prompt):
         messages=prompt, temperature=0.0
         )
     except Exception as e:
-        raise HTTPException(detail=f"Model response error. {e}")
+        raise HTTPException(status_code=502, detail=f"Bad Gateway. Model response error. {e}")
     
     return response.choices[0].message.content
 
@@ -68,6 +68,6 @@ def modelGemini(prompt):
         )
     except Exception as e:
         # TODO: this e.status_code is wrong and causing further error in case of api failure
-        raise HTTPException(detail=f"Model response error. {e}")
+        raise HTTPException(status_code=502, detail=f"Bad Gateway. Model response error. {e}")
 
     return response.choices[0].message.content
