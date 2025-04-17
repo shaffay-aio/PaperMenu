@@ -57,7 +57,7 @@ def convert_to_dataframe(output):
 
         df[['Parent Category', 'Item Name', 'Modifier']] = df[['Parent Category', 'Item Name', "Modifier"]].apply(lambda col: col.apply(lambda val: val.title() if pd.notna(val) else val))
         df['Item Price'] = df['Item Price'].apply(
-            lambda x: float(re.sub(r'[^\d.-]', '', str(x))) if pd.notna(x) and str(x).strip() != '' else None
+            lambda x: float(re.sub(r'[^0-9.]', '', str(x))) if pd.notna(x) and str(x).strip() != '' else None
         )
     except Exception as e:
         raise HTTPException(status_code=403, detail=f"Dataframe creation error. {e}")

@@ -3,6 +3,9 @@ from openai import OpenAI
 from fastapi import HTTPException
 from pydantic import BaseModel
 
+from dotenv import load_dotenv
+load_dotenv()
+
 sys_prompt = """You have to extract all the data from the menu in the provided JSON format.
 Strictly follow the instructions given below:
 - Do not write anything from yourself. If any information in below given format is missing keep it empty.
@@ -64,7 +67,7 @@ def modelGemini(prompt):
 
         response = client.chat.completions.create(
         model = "gemini-2.0-flash-lite", response_format = {'type':'json_schema'}, 
-        messages=prompt, temperature=0.0
+        messages=prompt, temperature=0.0, 
         )
     except Exception as e:
         # TODO: this e.status_code is wrong and causing further error in case of api failure
