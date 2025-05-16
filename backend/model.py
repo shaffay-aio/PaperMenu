@@ -18,7 +18,11 @@ Strictly follow the instructions given below:
 
 Output Format:
 [
-    {'category' : <name of food category>, 'item': <name of food item>, 'price': <price of food item>, 'modifier': <name of food modifier>, 'description': <description of food item>}, 
+    {'category' : <str: name of food category>, 
+    'item': <str: name of food item>, 
+    'price': <str: price of food item>, 
+    'modifier': <str: name of food modifier>, 
+    'description': <str: description of food item>}, 
 ]
 """
 
@@ -35,10 +39,13 @@ def prompt_template(image_url):
 
     message = [
         {
+            "role": "developer",
+            "content": sys_prompt
+        },
+        {
             "role": "user",
             "content": 
             [
-                { "type": "text", "text": sys_prompt},
                 { "type": "image_url", "image_url": {"url" : image_url}},
             ],
         },
@@ -66,8 +73,10 @@ def modelGemini(prompt):
         client = OpenAI(api_key=os.getenv("GEMINI_API_KEY"), base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
 
         response = client.chat.completions.create(
-        model = "gemini-2.0-flash-lite", response_format = {'type':'json_schema'}, 
-        messages=prompt, temperature=0.0, 
+        model = "gemini-2.0-flash-lite", 
+        response_format = {'type':'json_schema'}, 
+        messages=prompt, 
+        temperature=0.0, 
         )
     except Exception as e:
         # TODO: this e.status_code is wrong and causing further error in case of api failure

@@ -1,13 +1,40 @@
-import re
 import ast
+import fitz  # PyMuPDF
 import requests
 import io, base64
 import pandas as pd
 from PIL import Image
+from io import BytesIO
 from fastapi import HTTPException
 from backend.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
+
+def convert_pdf_to_jpgs(file_bytes):
+
+    images = []
+    pdf = fitz.open(stream=file_bytes, filetype="pdf")
+
+    for page_num in range(len(pdf)):
+    
+        page = pdf.load_page(page_num)
+        pix = page.get_pixmap(dpi=200) 
+    
+        img_stream = BytesIO(pix.tobytes("jpeg"))    
+        images.append(img_stream)
+
+        #pix.save(f"{page_num}.jpg")
+    return images
+
+def convert_png_to_jpgs(png_bytes):
+  
+    pil_img = Image.open(BytesIO(png_bytes)).convert("RGB")
+    jpg_stream = BytesIO()
+
+    pil_img.save(jpg_stream, format="JPEG")
+    jpg_stream.seek(0)
+    
+    return jpg_stream
 
 def create_bytes_object(file):
 
@@ -26,7 +53,7 @@ def encode_image(image_path):
         with Image.open(image_path) as img:
 
             # Resize the image using high-quality downsampling
-            img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
+            #img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
             
             # Save the resized image to a byte buffer
             buffered = io.BytesIO()
@@ -56,9 +83,9 @@ def convert_to_dataframe(output):
         df.columns = ["Parent Category", "Item Name", "Item Price", "Modifier", "Item Description"]
 
         df[['Parent Category', 'Item Name', 'Modifier']] = df[['Parent Category', 'Item Name', "Modifier"]].apply(lambda col: col.apply(lambda val: val.title() if pd.notna(val) else val))
-        df['Item Price'] = df['Item Price'].apply(
-            lambda x: float(re.sub(r'[^0-9.]', '', str(x))) if pd.notna(x) and str(x).strip() != '' else None
-        )
+        #df['Item Price'] = df['Item Price'].apply(
+        #    lambda x: float(re.sub(r'[^0-9.]', '', str(x))) if pd.notna(x) and str(x).strip() != '' else None
+        #)
     except Exception as e:
         raise HTTPException(status_code=403, detail=f"Dataframe creation error. {e}")
 

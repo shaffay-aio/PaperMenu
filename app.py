@@ -1,6 +1,6 @@
 import io
 import uvicorn
-import pandas as pd
+from PIL import Image
 from io import BytesIO
 from typing import List
 from fastapi import HTTPException
@@ -8,6 +8,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from backend.main import pipeline, multiimage
+from backend.processing import convert_pdf_to_jpgs, convert_png_to_jpgs
 
 from backend.utils.logging import setup_logger
 logger = setup_logger(__name__)
@@ -19,24 +20,34 @@ warnings.filterwarnings("ignore")
 app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "pdf"}
 
 async def read_images(images: List[UploadFile]):
-
-    # TODO: image should be jpg error
     image_streams = []
-    
-    # Read all images into byte streams first
+
     for image in images:
+        filename = image.filename.lower()
+
+        ext = filename.split('.')[-1]
+        if ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Unsupported file format for file {filename}. Allowed formats: jpg, jpeg, png, pdf.")
 
         try:
-            image_bytes = await image.read()
-            image_stream = BytesIO(image_bytes)
-            image_streams.append(image_stream)
-        except HTTPException as e:
-            raise HTTPException(status_code=e.status_code, detail=e.detail)
+            file_bytes = await image.read()
+
+            if ext in {"jpg", "jpeg"}:
+                image_streams.append(BytesIO(file_bytes))
+
+            elif ext == "png":
+                jpg_stream = convert_png_to_jpgs(file_bytes)
+                image_streams.append(jpg_stream)
+                
+            elif ext == "pdf":
+                image_streams.extend(convert_pdf_to_jpgs(file_bytes))
+
 
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Internal server error while reading image {image.filename}. {e}")
+            raise HTTPException(status_code=500, detail=f"Internal server error while processing {filename}. {e}")
 
     return image_streams
 
