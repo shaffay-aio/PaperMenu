@@ -2,7 +2,7 @@ import pandas as pd
 
 from backend.embeddings import merge
 from backend.model import prompt_template, modelGemini, modelQwen
-from backend.processing import encode_image, list_validator, convert_to_dataframe, additional_columns, convert_to_aio
+from backend.processing import encode_image, list_validator, convert_to_dataframe, additional_columns, convert_to_aio, dump_to_middleware
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -36,9 +36,11 @@ def multiimage(image_streams):
     for i, image in enumerate(image_streams):
         dfs.append(vlm(image))
 
-    # merge
+    # merge & dump to middleware
     df = pd.concat(dfs, ignore_index=True)
-    return df
+    format = dump_to_middleware(df)
+
+    return format
 
 def pipeline(image_stream, file_stream):
     

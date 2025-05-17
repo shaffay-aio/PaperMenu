@@ -5,7 +5,8 @@ import io, base64
 import pandas as pd
 from PIL import Image
 from io import BytesIO
-from fastapi import HTTPException
+from typing import List
+from fastapi import HTTPException, UploadFile
 from backend.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
@@ -118,3 +119,49 @@ def convert_to_aio(file):
     else:
         logger.info("AIO format api failed.")
         raise HTTPException(status_code=response.status_code, detail=response.text)
+    
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "pdf"}
+async def read_images(images: List[UploadFile]):
+    image_streams = []
+
+    for image in images:
+        filename = image.filename.lower()
+
+        ext = filename.split('.')[-1]
+        if ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Unsupported file format for file {filename}. Allowed formats: jpg, jpeg, png, pdf.")
+
+        try:
+            file_bytes = await image.read()
+
+            if ext in {"jpg", "jpeg"}:
+                image_streams.append(BytesIO(file_bytes))
+
+            elif ext == "png":
+                jpg_stream = convert_png_to_jpgs(file_bytes)
+                image_streams.append(jpg_stream)
+                
+            elif ext == "pdf":
+                image_streams.extend(convert_pdf_to_jpgs(file_bytes))
+
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Internal server error while processing {filename}. {e}")
+
+    return image_streams
+
+def dump_to_middleware(df):
+
+    format = pd.read_excel('./resources/Sample Middleware File Format.xlsx', sheet_name=None)
+    
+    # extracted values
+    format['items']['Parent Category'] = df['Parent Category']
+    format['items']['Item Name'] = df['Item Name']
+    format['items']['Item Price'] = df['Item Price']
+    format['items']['Item Description'] = df['Item Description']
+
+    # default values
+    format['items']['Menu Name'] = ['Main Menu'] * len(format['items'])
+    format['items']['Stock Status'] = ['inStock'] * len(format['items'])
+
+    return format
