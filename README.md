@@ -34,22 +34,17 @@ python app.py
 
 #### Future Additions
 - ⭕ Add Pydantic structure for output.
-- ⭕ Add multi jpgs, pdf to api input.
 - ⭕ Quality testing on diverse menus.
-- ⭕ Super Menu enhancement.
 
 #### Testing
 - ⭕ Tilted menu tested.
 - ⭕ Single pager straight menu tested.
 - ⭕ Multi pager straight menu tested.
+- Test on menus given in https://aioapp.atlassian.net/browse/AIS-549.
 
 #### TODO
-- For multi pager, read all one by one.
+- Only categories and items (name, price, description) will be extracted in V1.
 - Use gpt 40 mini to concat jsons.
 - for gemini if there are multiple menu images, to certain number you can send them all at once and get one json 
-
-- add appropiate logging
-- resolve super menu and other api file recieving issue via api
-- improve prompt by fixing output format, telling what information to extract
 
 lookup : If using a single image, place the text prompt after the image.

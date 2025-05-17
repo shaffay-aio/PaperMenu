@@ -2,7 +2,7 @@ import pandas as pd
 
 from backend.embeddings import merge
 from backend.model import prompt_template, modelGemini, modelQwen
-from backend.processing import encode_image, list_validator, convert_to_dataframe, additional_columns, convert_to_aio
+from backend.processing import encode_image, list_validator, convert_to_dataframe, additional_columns, convert_to_aio, dump_to_middleware
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -36,9 +36,11 @@ def multiimage(image_streams):
     for i, image in enumerate(image_streams):
         dfs.append(vlm(image))
 
-    # merge
+    # merge & dump to middleware
     df = pd.concat(dfs, ignore_index=True)
-    return df
+    format = dump_to_middleware(df)
+
+    return format
 
 def pipeline(image_stream, file_stream):
     
@@ -49,15 +51,15 @@ def pipeline(image_stream, file_stream):
 
     # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
-    file['items'], missing_items = merge(dataframe, file['items'])
+    file['items'], missing_items = merge(dataframe['items'], file['items'])
     file['items'] = additional_columns(file['items'])
     logger.info(f"Scraped and OCR files merged successfully. {missing_items['Item Name'].nunique()} additional items added.")
 
     # convert to aio format
-    output = convert_to_aio(file)
-    logger.info("File converted to AIO format.")
+    #output = convert_to_aio(file)
+    #logger.info("File converted to AIO format.")
 
     # apply super menu
     #logger.info("Super Menu modifier/option filling added.")
 
-    return output
+    return file

@@ -1,6 +1,6 @@
 import io
 import uvicorn
-import pandas as pd
+from PIL import Image
 from io import BytesIO
 from typing import List
 from fastapi import HTTPException
@@ -8,6 +8,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from backend.main import pipeline, multiimage
+from backend.processing import read_images, create_bytes_object
 
 from backend.utils.logging import setup_logger
 logger = setup_logger(__name__)
@@ -19,26 +20,6 @@ warnings.filterwarnings("ignore")
 app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],)
-
-async def read_images(images: List[UploadFile]):
-
-    # TODO: image should be jpg error
-    image_streams = []
-    
-    # Read all images into byte streams first
-    for image in images:
-
-        try:
-            image_bytes = await image.read()
-            image_stream = BytesIO(image_bytes)
-            image_streams.append(image_stream)
-        except HTTPException as e:
-            raise HTTPException(status_code=e.status_code, detail=e.detail)
-
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Internal server error while reading image {image.filename}. {e}")
-
-    return image_streams
 
 @app.post("/ocr")
 async def ocr_only(images: List[UploadFile] = File(...)):
@@ -56,12 +37,10 @@ async def ocr_only(images: List[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail=f"Internal server error. {e}")
 
     # convert excel file to byte stream object
-    output = io.BytesIO() 
-    response.to_csv(output, index=False)    
-    output.seek(0)
+    output = create_bytes_object(response)
 
-    filename = "file.csv"
-    return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": f"attachment; filename={filename}"})
+    filename = "file.xlsx"
+    return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 # TODO: additional column Modifier should be such that i can be reflected back to middleware
 @app.post("/ocr-menu-pipeline")
@@ -82,6 +61,9 @@ async def OCR(images: List[UploadFile] = File(...), file: UploadFile = File(...)
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error. {e}")
+
+    # convert excel file to byte stream object
+    output = create_bytes_object(output)
 
     filename = "file.xlsx"
     return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
