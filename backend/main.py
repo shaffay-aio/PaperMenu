@@ -51,15 +51,15 @@ def pipeline(image_stream, file_stream):
 
     # merge non-existent items with scraped file
     file = pd.read_excel(file_stream, sheet_name=None)
-    file['items'], missing_items = merge(dataframe, file['items'])
+    file['items'], missing_items = merge(dataframe['items'], file['items'])
     file['items'] = additional_columns(file['items'])
     logger.info(f"Scraped and OCR files merged successfully. {missing_items['Item Name'].nunique()} additional items added.")
 
     # convert to aio format
-    output = convert_to_aio(file)
-    logger.info("File converted to AIO format.")
+    #output = convert_to_aio(file)
+    #logger.info("File converted to AIO format.")
 
     # apply super menu
     #logger.info("Super Menu modifier/option filling added.")
 
-    return output
+    return file

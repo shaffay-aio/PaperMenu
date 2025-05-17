@@ -62,6 +62,9 @@ async def OCR(images: List[UploadFile] = File(...), file: UploadFile = File(...)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error. {e}")
 
+    # convert excel file to byte stream object
+    output = create_bytes_object(output)
+
     filename = "file.xlsx"
     return StreamingResponse(output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f"attachment; filename={filename}"})
 
