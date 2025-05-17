@@ -81,9 +81,9 @@ def convert_to_dataframe(output):
         df = pd.DataFrame(output)
 
         # preprocess columns
-        df.columns = ["Parent Category", "Item Name", "Item Price", "Modifier", "Item Description"]
-
-        df[['Parent Category', 'Item Name', 'Modifier']] = df[['Parent Category', 'Item Name', "Modifier"]].apply(lambda col: col.apply(lambda val: val.title() if pd.notna(val) else val))
+        df.columns = ["Parent Category", "Item Name", "Item Price", "Item Description"]
+        df[['Parent Category', 'Item Name']] = df[['Parent Category', 'Item Name']].apply(lambda col: col.apply(lambda val: val.title() if pd.notna(val) else val))
+        
         #df['Item Price'] = df['Item Price'].apply(
         #    lambda x: float(re.sub(r'[^0-9.]', '', str(x))) if pd.notna(x) and str(x).strip() != '' else None
         #)

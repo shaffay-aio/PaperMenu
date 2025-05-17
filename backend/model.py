@@ -11,7 +11,7 @@ Strictly follow the instructions given below:
 - Do not write anything from yourself. If any information in below given format is missing keep it empty.
 - Do not break the output structure. You have to extract only food categories, items, prices and descriptions.
 - Where no information for a specific entity is found, it should add "" rather than null.
-- If item with different modifications exist, make separate entries for them.
+- If item with different prices exist, make separate entries for them.
 - Auto correct any spelling mistakes. 
 - One entry should be made for a combo. If multiple items exist in combo, add all its items as one item. Be careful while picking category name for it.
 - Where no categories are found but items exist, keep their category empty.
@@ -20,21 +20,11 @@ Output Format:
 [
     {'category' : <str: name of food category>, 
     'item': <str: name of food item>, 
-    'price': <str: price of food item>, 
-    'modifier': <str: name of food modifier>, 
+    'price': <str: price of food item>,  
     'description': <str: description of food item>}, 
 ]
 """
 
-class RequiredFields(BaseModel):
-    category: str
-    item: str
-    price: float
-    description: str
-
-class ArrayDict(BaseModel):
-    rows: list[RequiredFields]
-    
 def prompt_template(image_url):
 
     message = [
@@ -79,7 +69,6 @@ def modelGemini(prompt):
         temperature=0.0, 
         )
     except Exception as e:
-        # TODO: this e.status_code is wrong and causing further error in case of api failure
         raise HTTPException(status_code=502, detail=f"Bad Gateway. Model response error. {e}")
 
     return response.choices[0].message.content
